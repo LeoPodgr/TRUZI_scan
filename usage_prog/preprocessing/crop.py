@@ -37,25 +37,17 @@ def adjust_yolo_bbox(cls, x, y, w, h, img_w, img_h, crop_left, crop_top, crop_wi
 
 def crop_directory_with_labels(input_root: str,
                                 crop_y1: int, crop_y2: int,
-                                crop_x1: int, crop_x2: int) -> str:
-    
-    images_input_dir = os.path.join(input_root, "images")
-    labels_input_dir = os.path.join(input_root, "labels")
-
-    output_root = input_root.rstrip('/\\') + "_crop"
-    images_output_dir = os.path.join(output_root, "images")
-    labels_output_dir = os.path.join(output_root, "labels")
-
-    os.makedirs(images_output_dir, exist_ok=True)
-    os.makedirs(labels_output_dir, exist_ok=True)
+                                crop_x1: int, crop_x2: int) -> None:
+    images_dir = os.path.join(input_root, "images")
+    labels_dir = os.path.join(input_root, "labels")
 
     crop_width = crop_x2 - crop_x1
     crop_height = crop_y2 - crop_y1
 
-    for filename in os.listdir(images_input_dir):
+    for filename in os.listdir(images_dir):
         if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.tiff')):
-            path = os.path.join(images_input_dir, filename)
-            img = cv2.imread(path)
+            image_path = os.path.join(images_dir, filename)
+            img = cv2.imread(image_path)
 
             if img is None:
                 print(f"[WARNING] Не удалось загрузить {filename}")
@@ -63,12 +55,10 @@ def crop_directory_with_labels(input_root: str,
 
             img_h, img_w = img.shape[:2]
             img_crop = pre_crop(img, crop_y1, crop_y2, crop_x1, crop_x2)
-
-            out_path = os.path.join(images_output_dir, filename)
-            cv2.imwrite(out_path, img_crop)
+            cv2.imwrite(image_path, img_crop)  
 
             label_file = os.path.splitext(filename)[0] + ".txt"
-            label_path = os.path.join(labels_input_dir, label_file)
+            label_path = os.path.join(labels_dir, label_file)
 
             if not os.path.exists(label_path):
                 continue
@@ -90,7 +80,22 @@ def crop_directory_with_labels(input_root: str,
                 if adjusted:
                     new_lines.append(adjusted)
 
-            with open(os.path.join(labels_output_dir, label_file), 'w') as outfile:
+            with open(label_path, 'w') as outfile:
                 outfile.write('\n'.join(new_lines))
 
-    return output_root
+def crop_directory_without_labels(input_root: str,
+                                  crop_y1: int, crop_y2: int,
+                                  crop_x1: int, crop_x2: int) -> None:
+    images_dir = os.path.join(input_root, "images")
+
+    for filename in os.listdir(images_dir):
+        if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.tiff')):
+            image_path = os.path.join(images_dir, filename)
+            img = cv2.imread(image_path)
+
+            if img is None:
+                print(f"[WARNING] Не удалось загрузить {filename}")
+                continue
+
+            img_crop = img[crop_y1:crop_y2, crop_x1:crop_x2]
+            cv2.imwrite(image_path, img_crop)
