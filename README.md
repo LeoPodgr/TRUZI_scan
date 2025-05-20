@@ -15,6 +15,8 @@
 
    pip install -r requirements.txt
 
+При использовании GPU отдельно установите torch с поддержкой CUDA.
+
 
 ## Конфигурационный файл (`conf.json`)
 
