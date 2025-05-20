@@ -16,7 +16,7 @@ def split_dataset(
     random.seed(seed)
 
     def extract_postfix(filename):
-        return filename.split(postfix_delimiter)[-1]  # группировка по последнему элементу имени файла
+        return filename.split(postfix_delimiter)[-1]
 
     images = [f for f in os.listdir(images_path) if f.endswith((".jpg", ".png"))]
     groups = defaultdict(list)
