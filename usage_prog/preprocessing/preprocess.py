@@ -1,7 +1,9 @@
 import os
-from crop import crop_images_and_labels
-from contrast import enhance_contrast_in_directory
-from sam import apply_sam_to_directory
+import shutil
+from preprocessing.crop import crop_directory_with_labels
+from preprocessing.crop import crop_directory_without_labels
+from preprocessing.contrast import enhance_contrast_in_directory
+from preprocessing.sam import apply_sam_to_directory
 
 def preprocess_dataset(input_root: str,
                        crop_box=(40, 100, 1030, 808),
@@ -11,33 +13,53 @@ def preprocess_dataset(input_root: str,
                        device="cuda",
                        do_crop=True,
                        do_contrast=True,
-                       do_sam=True) -> str:
+                       do_sam=True,
+                       train=False) -> str:
 
-    current_root = input_root
+    copied_root = input_root.rstrip('/\\') + "_preproc"
+
+    if os.path.exists(copied_root):
+        print(f"[PREPROCESS] Удаляем существующую копию: {copied_root}")
+        shutil.rmtree(copied_root)
+
+    print(f"[PREPROCESS] Копируем входную папку: {input_root} → {copied_root}")
+    shutil.copytree(input_root, copied_root)
+
+    current_root = copied_root
 
     if do_crop:
         print("[PREPROCESS] Шаг 1: кроп изображений и разметки...")
-        current_root = crop_images_and_labels(
-            input_root=current_root,
-            crop_box=crop_box,
-            original_image_size=original_image_size
-        )
+        if train:
+            crop_directory_with_labels(
+                input_root=current_root,
+                crop_y1=crop_box[1],
+                crop_y2=crop_box[3],
+                crop_x1=crop_box[0],
+                crop_x2=crop_box[2]
+            )
+        else:
+            crop_directory_without_labels(
+                input_root=current_root,
+                crop_y1=crop_box[1],
+                crop_y2=crop_box[3],
+                crop_x1=crop_box[0],
+                crop_x2=crop_box[2]
+            )
 
     if do_contrast:
         print("[PREPROCESS] Шаг 2: усиление контраста...")
-        current_root = enhance_contrast_in_directory(
-            input_dir=os.path.join(current_root, "images")
+        enhance_contrast_in_directory(
+            input_root=os.path.join(current_root, "images")
         )
 
     if do_sam:
         print("[PREPROCESS] Шаг 3: SAM сегментация...")
-        current_root = apply_sam_to_directory(
+        apply_sam_to_directory(
             input_root=current_root,
             sam_checkpoint=sam_checkpoint,
             model_type=model_type,
             device=device
         )
-        current_root = os.path.join(current_root, "images_with_contours")
 
     print(f"[PREPROCESS] Предобработка завершена. Результат: {current_root}")
     return current_root
