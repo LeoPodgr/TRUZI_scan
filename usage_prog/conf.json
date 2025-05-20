@@ -1,33 +1,32 @@
 {
-  "mode": "training",  // Режим работы: "training" для дообучения, "inference" для применения модели
+  "mode": "training",
   "training": {
-    "data_path": "path_input",  // Путь к данным для обучения (или валидации)
-    "epochs": 100,               // Количество эпох для обучения
-    "batch_size": 4,            // Размер батча
-    "learning_rate": 0.001,      // Начальная скорость обучения
-    "img_size": 960,             // Размер входных изображений
-    "pretrained": true,          // Использовать предобученные веса
-    "resume": false,             // Продолжить обучение с последней контрольной точки?
-    "weights_save_path": "path_wrights",  // Путь для сохранения весов модели
-    "validation_split": 0.1,     // Доля данных для валидации
-    "early_stopping": true,      // Включение ранней остановки
-    "early_stopping_patience": 10,  // Количество эпох до ранней остановки
-    "augmentation": true,       // Включить аугментации для обучения
-    "augmentation_params": {    // Параметры аугментаций
-      "flip": 0.0,              // Горизонтальное отражение (0.0 — отключено)
-      "rotation": 0.0,          // Небольшие повороты (0.0 — отключено)
-      "brightness": 0.0,        // Умеренные изменения яркости (0.0 — отключено)
-      "contrast": 0.0,          // Умеренные изменения контрастности (0.0 — отключено)
-      "perspective": 0.0,       // Убрать перспективные искажения (0.0 — отключено)
-      "mosaic": 0.0,            // Отключить Mosaic (0.0 — отключено)
-      "saturation": 0.0,        // Убрать насыщенность (0.0 — отключено)
-      "hue": 0.0,               // Убрать сдвиг оттенка (0.0 — отключено)
-      "noise": 0.0,             // Убрать шум (0.0 — отключено)
-      "cutout": 0.0             // Убрать вырезы (cutout) (0.0 — отключено)
+    "data_path": "data",
+    "epochs": 10,
+    "batch_size": 2,
+    "learning_rate": 0.001,
+    "img_size": 960,
+    "pretrained": true,
+    "weights_save_path": "train_results",
+    "validation_split": 0.1,
+    "early_stopping": true,
+    "early_stopping_patience": 10,
+    "augmentation": true,
+    "augmentation_params": {
+      "flip": 0.0,
+      "rotation": 0.0,
+      "brightness": 0.0,
+      "contrast": 0.0,
+      "perspective": 0.0,
+      "mosaic": 0.0,
+      "saturation": 0.0,
+      "hue": 0.0,
+      "noise": 0.0,
+      "cutout": 0.0
     },
     "apply_crop": true,
-    "apply_contrast": true,
-    "apply_sam": true,
+    "apply_contrast": false,
+    "apply_sam": false,
     "original_image_size": [1164, 873],
     "crop_box": [40, 100, 1030, 808],
     "sam_checkpoint": "sam_vit_l_0b3195.pth",
@@ -35,15 +34,20 @@
     "device": "cuda"
   },
   "inference": {
-    "model_path": "path_saved_model",  // Путь к сохранённой модели
-    "image_path": "path_image",        // Путь к изображению для применения
-    "output_path": "path_results", // Путь для сохранения результатов
-    "confidence_threshold": 0.5,          // Порог уверенности для предсказаний
-    "iou_threshold": 0.5,                 // Порог IoU для определения детекций
-    "show_results": true,                 // Показать результаты на изображении?
-    "save_results": true,                  // Сохранить результаты предсказания в файл?
+    "model_path": "best.pt",
+    "image_path": "data",
+    "output_path": "inf_results",
+    "confidence_threshold": 0.5,
+    "iou_threshold": 0.5,
+    "show_results": false,
+    "save_results": true,
     "apply_crop": true,
     "apply_contrast": true,
-    "apply_sam": true, 
+    "apply_sam": true,
+    "original_image_size": [1164, 873],
+    "crop_box": [40, 100, 1030, 808],
+    "sam_checkpoint": "sam_vit_h_4b8939.pth",
+    "model_type": "vit_h",
+    "device": "cuda"
   }    
 }
