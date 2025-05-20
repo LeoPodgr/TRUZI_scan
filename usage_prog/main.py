@@ -5,7 +5,7 @@ from inference import inference
 
 def main():
     try:
-        with open("config.json", "r") as f:
+        with open("conf.json", "r", encoding="utf-8") as f:
             config = json.load(f)
     except Exception as e:
         print(f"[ERROR] Ошибка загрузки config.json: {e}")
@@ -14,9 +14,9 @@ def main():
     mode = config.get("mode")
 
     if mode == "training":
-        run_training(config["training"])
+        training(config["training"])
     elif mode == "inference":
-        run_inference(config["inference"])
+        inference(config["inference"])
     else:
         print(f"[ERROR] Неверный режим: {mode}")
         sys.exit(1)
